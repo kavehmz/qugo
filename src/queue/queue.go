@@ -70,10 +70,10 @@ func removeTask(redisdb redis.Conn, queue string) (int, string) {
 }
 
 //AnalysePool accepts an analyser function and empty the pool
-func AnalysePool(n int, exitOnEmpy bool, f func(int, chan string, chan bool, chan bool)) {
+func AnalysePool(n int, poolSize int, exitOnEmpy bool, f func(int, chan string, chan bool, chan bool)) {
 	redisdb := redisPool[n%redisParitions].conn
 	queue := "WAREHOUSE_" + strconv.Itoa((n/redisParitions)%queuePartitions)
-	next := make(chan bool, 2)
+	next := make(chan bool, poolSize)
 	pool := make(map[int]chan string)
 	for {
 
@@ -99,7 +99,7 @@ func AnalysePool(n int, exitOnEmpy bool, f func(int, chan string, chan bool, cha
 		}
 	}
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < poolSize; i++ {
 		next <- true
 	}
 }

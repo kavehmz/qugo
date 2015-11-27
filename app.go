@@ -76,11 +76,12 @@ func main() {
 	queue.QueuesInPartision(1)
 	mode := flag.String("mode", "analyser", "Specfies the mode for this application [device|analyser].")
 	id := flag.Int("id", 1, "Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.")
+	workers := flag.Int("workers", 4, "Specfies number of concurrent workers which each analysers will have.")
 	flag.Parse()
 	if *mode == "device" {
 		generateRandomEvents()
 	} else {
 		analyse := analyse
-		queue.AnalysePool(*id, false, analyse)
+		queue.AnalysePool(*id, *poolSize, false, analyse)
 	}
 }

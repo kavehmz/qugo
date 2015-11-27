@@ -53,7 +53,7 @@ func TestAnalysePool(t *testing.T) {
 	AddTask(1, "stop")
 	AddTask(2, "stop")
 	a := analyse
-	AnalysePool(1, true, a)
+	AnalysePool(1, 2, true, a)
 	r, e := redisdb.Do("LLEN", "WAREHOUSE_0")
 	s, e := redis.Int64(r, e)
 	if s != 0 {
