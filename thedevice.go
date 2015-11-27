@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math/rand"
 	"time"
@@ -27,11 +28,11 @@ func generateRandomEvents() {
 		queue.AddTask(id, string(jsonVal))
 		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Pick", OrderID: id, ItemID: 1100, Quantity: 1, Container: 5, PicklistID: id})
 		queue.AddTask(id, string(jsonVal))
-		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Skip", OrderID: id, ItemID: 1100, Quantity: 1, Container: 5, PicklistID: id})
+		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Skip", OrderID: id, ItemID: 1101, Quantity: 1, Container: 5, PicklistID: id})
 		queue.AddTask(id, string(jsonVal))
 		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Stop", OrderID: id, ItemID: 0, Quantity: 0, Container: 0, PicklistID: id})
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		if r.Int()%2 != 0 {
+		if r.Int()%2 != 4 {
 			queue.AddTask(id, string(jsonVal))
 		}
 	}
@@ -48,9 +49,8 @@ func analyse(id int, msg_channel chan string, success chan bool, next chan bool)
 		select {
 		case msg := <-msg_channel:
 			event := parseEvent(msg)
-			fmt.Println("Analyse", event.OrderID, event.Event)
 			if event.Event == "Start" {
-				fmt.Println("Starting", event.OrderID)
+				fmt.Println("Start", event.OrderID)
 			} else if event.Event == "Pick" {
 				fmt.Println("Pick", event.OrderID, event.ItemID)
 			} else if event.Event == "Skip" {
@@ -72,9 +72,15 @@ func analyse(id int, msg_channel chan string, success chan bool, next chan bool)
 }
 
 func main() {
-	queue.Partitions(1)
+	queue.Partitions([]string{"redis://redisqueue.kaveh.me:6379"})
 	queue.QueuesInPartision(1)
-	generateRandomEvents()
-	analyse := analyse
-	queue.AnalysePool(1, false, analyse)
+	mode := flag.String("mode", "analyser", "Specfies the mode for this application [device|analyser].")
+	id := flag.Int("id", 1, "Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.")
+	flag.Parse()
+	if *mode == "device" {
+		generateRandomEvents()
+	} else {
+		analyse := analyse
+		queue.AnalysePool(*id, false, analyse)
+	}
 }

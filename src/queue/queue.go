@@ -17,7 +17,12 @@ var queuePartitions = 1
 var redisParitions = 1
 
 //Pool of redis connections
-var redisPool []redis.Conn
+type redisStruct struct {
+	conn redis.Conn
+	url  string
+}
+
+var redisPool []redisStruct
 
 //QueuesInPartision set number of queue in each partition. Each analyser will work on one queue in one partition and start its workers
 func QueuesInPartision(n int) {
@@ -25,23 +30,24 @@ func QueuesInPartision(n int) {
 }
 
 //Partitions set number of redis partitions
-func Partitions(n int) {
+func Partitions(urls []string) {
+	redisParitions = len(urls)
 	redisPool = redisPool[:0]
-	for i := 0; i < n; i++ {
-		r, _ := redis.DialURL(defaultRedis)
-		redisPool = append(redisPool, r)
+	for _, v := range urls {
+		r, _ := redis.DialURL(v)
+		redisPool = append(redisPool, redisStruct{r, v})
 	}
 }
 
 // AddTask will add a task event to the queue of tasks
 func AddTask(id int, task string) {
 	task = strconv.Itoa(id) + ";" + task
-	_, e := redisPool[id%redisParitions].Do("RPUSH", "WAREHOUSE_"+strconv.Itoa((id/redisParitions)%queuePartitions), task)
+	_, e := redisPool[id%redisParitions].conn.Do("RPUSH", "WAREHOUSE_"+strconv.Itoa((id/redisParitions)%queuePartitions), task)
 	checkErr(e)
 }
 
 func waitforSuccess(n int, id int, success chan bool, pool map[int]chan string) {
-	redisdb, _ := redis.DialURL(defaultRedis)
+	redisdb, _ := redis.DialURL(redisPool[id%redisParitions].url)
 	redisdb.Do("SET", "PENDING::"+strconv.Itoa(id), 1)
 	r := <-success
 	if r {
@@ -65,7 +71,7 @@ func removeTask(redisdb redis.Conn, queue string) (int, string) {
 
 //AnalysePool accepts an analyser function and empty the pool
 func AnalysePool(n int, exitOnEmpy bool, f func(int, chan string, chan bool, chan bool)) {
-	redisdb := redisPool[n%redisParitions]
+	redisdb := redisPool[n%redisParitions].conn
 	queue := "WAREHOUSE_" + strconv.Itoa((n/redisParitions)%queuePartitions)
 	next := make(chan bool, 2)
 	pool := make(map[int]chan string)
@@ -103,5 +109,3 @@ func checkErr(e error) {
 		panic(e)
 	}
 }
-
-var defaultRedis = "redis://redisqueue.kaveh.me:6379"

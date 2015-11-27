@@ -6,18 +6,20 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+//var testRedis = "redis://redisqueue.kaveh.me:6379"
+var testRedis = "redis://localhost:6379"
+
 func TestPartitions(t *testing.T) {
-	Partitions(5)
-	_, err := redisPool[4].Do("PING")
+	Partitions([]string{testRedis})
+	_, err := redisPool[0].conn.Do("PING")
 	if err != nil {
 		t.Error("SetRedisPool items are not set correctly")
 	}
 }
 
 func TestAddTask(t *testing.T) {
-	QueuesInPartision(1)
-	Partitions(1)
-	redisdb := redisPool[0]
+	Partitions([]string{testRedis})
+	redisdb := redisPool[0].conn
 	redisdb.Do("DEL", "WAREHOUSE_0")
 	AddTask(4, "test")
 	r, e := redisdb.Do("RPOP", "WAREHOUSE_0")
@@ -29,8 +31,8 @@ func TestAddTask(t *testing.T) {
 
 func TestQueuesInPartision(t *testing.T) {
 	QueuesInPartision(5)
-	Partitions(1)
-	redisdb := redisPool[0]
+	Partitions([]string{testRedis})
+	redisdb := redisPool[0].conn
 	redisdb.Do("DEL", "WAREHOUSE_4")
 	AddTask(4, "test")
 	r, e := redisdb.Do("RPOP", "WAREHOUSE_4")
@@ -43,8 +45,8 @@ func TestQueuesInPartision(t *testing.T) {
 
 func TestAnalysePool(t *testing.T) {
 	QueuesInPartision(1)
-	Partitions(1)
-	redisdb := redisPool[0]
+	Partitions([]string{testRedis})
+	redisdb := redisPool[0].conn
 	redisdb.Do("DEL", "WAREHOUSE_0")
 	AddTask(1, "start")
 	AddTask(2, "start")
@@ -62,7 +64,7 @@ func TestAnalysePool(t *testing.T) {
 
 func BenchmarkAddTask(b *testing.B) {
 	QueuesInPartision(1)
-	Partitions(1)
+	Partitions([]string{testRedis})
 	for i := 0; i < b.N; i++ {
 		AddTask(i, "stop")
 	}
@@ -70,8 +72,8 @@ func BenchmarkAddTask(b *testing.B) {
 
 func BenchmarkRemoveTask(b *testing.B) {
 	QueuesInPartision(1)
-	Partitions(1)
-	redisdb := redisPool[0]
+	Partitions([]string{testRedis})
+	redisdb := redisPool[0].conn
 	for i := 0; i < b.N; i++ {
 		removeTask(redisdb, "WAREHOUSE_0")
 	}
