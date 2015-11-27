@@ -4,7 +4,7 @@ go:
 services:
   - redis-server
 before_install:
-    - rm thedevice.go
+    - rm app.go
 install:
   - go get github.com/garyburd/redigo/redis
 script:
