@@ -11,3 +11,6 @@ I had some assumptions about the design.
 - I didnt wanted to do it using local, easiliy setupable tools. Something that I wont do for real products. 
 - I make the solution more Complex by assigning all events of the same Order to one Analyser as I found it more realistic. Without that solution would be far simpler.
 
+The whole design can be epxresses in one graph:
+
+[![Diagram](https://raw.githubusercontent.com/kavehmz/static/master/queue/diagram.png)]()
