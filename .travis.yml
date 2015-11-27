@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.5
+services:
+  - redis-server
+before_install:
+    - rm thedevice.go
+install:
+  - go get github.com/garyburd/redigo/redis
+script:
+    - GOPATH=$GOPATH:$PWD go test queue  -bench . -v
