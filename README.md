@@ -79,7 +79,7 @@ I can still go on for a while about the design and the code but I think for thos
 ### Very Important parts
 This is just a practice to show my mind set. Otherwise this is not a complete solution.
 In a complete solutions I would also work on,
-- dev environment, https://github.com/kavehmz/queued
+- dev environment, I did a fast sample :https://github.com/kavehmz/queued
 - metrics, monitoring and alerts (datadog, newrelic, pagerduty,..)
 - automated setup and automated scaling (chef, amazon opsWorks,..)
 - auto-scaling prediction and warm-up. For example in AWS both ELB and newly created volumes from a snapshot need warm-up for high volume loads.
