@@ -1,12 +1,12 @@
 package queue
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/garyburd/redigo/redis"
 )
 
-//var testRedis = "redis://redisqueue.kaveh.me:6379"
 var testRedis = "redis://localhost:6379"
 
 func TestPartitions(t *testing.T) {
@@ -79,10 +79,29 @@ func BenchmarkRemoveTask(b *testing.B) {
 	}
 }
 
+// This will act both as test and example in documentation
+func ExampleAddTaskAnalyse() {
+	QueuesInPartision(1)
+	Partitions([]string{testRedis})
+	AddTask(1, "start")
+	AddTask(2, "start")
+	AddTask(1, "stop")
+	AddTask(2, "stop")
+	a := analyse
+	AnalysePool(1, 2, true, a)
+	// Output:
+	// 1 start
+	// 2 start
+	// 1 stop
+	// 2 stop
+
+}
+
 func analyse(id int, msg_channel chan string, success chan bool, next chan bool) {
 	for {
 		select {
 		case msg := <-msg_channel:
+			fmt.Println(id, msg)
 			if msg == "stop" {
 				<-next
 				success <- true

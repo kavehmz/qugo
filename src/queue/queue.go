@@ -1,3 +1,10 @@
+// Queue is a simple Queue system written in Go that will use Redis underneath.
+// Focus of this design is mainly horisontal scalability via concurrency, paritioning and fault-detection
+// For scalability we can separately add more Redis instances and more Analysers.
+//
+// Partitioning factor to identify where each event must save is the OrderID.
+// RedisParition => OrderId % redisParitions Queue => (OrderID/redisParitions) % queuePartitions
+// AnalysePool will send all events of one OrderID to the same AnalyserWorker.
 package queue
 
 import (
@@ -8,12 +15,8 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-// Settign number of queues. This paritioning is for safely distributing related task into one queue
-// If there is 2 partitions all events related to task 1,3,5.. will go to WAREHOUSE_1 and all events related to tasks 2,4,6,.. will go to WAREHOUSE_0
 var queuePartitions = 1
 
-// StorageParitions will define the number of redis partitions required for queue
-// Redis has a singe processor implementations. If one redis can't handle a load of events we can use more than one
 var redisParitions = 1
 
 //Pool of redis connections
@@ -24,12 +27,15 @@ type redisStruct struct {
 
 var redisPool []redisStruct
 
-//QueuesInPartision set number of queue in each partition. Each analyser will work on one queue in one partition and start its workers
+//QueuesInPartision set number of queue in each partition. Each analyser will work on one queue in one partition and start its workers.
+// Settign number of queues. This paritioning is for safely distributing related task into one queue
+// If there is 2 partitions all events related to task 1,3,5.. will go to WAREHOUSE_1 and all events related to tasks 2,4,6,.. will go to WAREHOUSE_0
 func QueuesInPartision(n int) {
 	queuePartitions = n
 }
 
-//Partitions set number of redis partitions
+// Partitions will define the number of redis partitions required for queue
+// Redis has a singe processor implementations. If one redis can't handle a load of events we can use more than one
 func Partitions(urls []string) {
 	redisParitions = len(urls)
 	redisPool = redisPool[:0]

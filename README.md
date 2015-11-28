@@ -65,7 +65,9 @@ This will use Go Routines (very light weight thread) and Channels (Go concept fo
 - id: Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.
 
 > **Note:** AnalysePool will send all events of one OrderID to the same AnalyserWorker.
+
 > **Note:** In Go number of workers can be specified by a simple concepts named Channel Buffering.
+
 > **Pending Analyses and Crashes:** When removeTask get a new even from the queue it will set a flag in redis that show this task is pending. Later a waitforSuccess function will clear this flag. **If a crash happens for any reason, records of all unfinished analysis are saved in redis to for any inspection or crash handling**.
 
 QuGo can handle multiple redis instance and in each instance can create multiple queue. This is to make sure Analysers can scale as we like. I assumed Analysers especially are the main bottleneck in scalability.
