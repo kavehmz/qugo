@@ -31,6 +31,18 @@ Redis is a DB with that ability. I also did benchmarks. Redis was able to handle
 
 > Note: As you see AddTask is a much lighter operation than RemoveTask. Because to make sure **We don't lose trace of running jobs in case of any crash** RemoveTask will add a log of running tasks in Redis. In case of crash that can be used to find those affected tasks.
 
+### Language
+
+This is a classical problem suited for those languages that support concurrency the best. Naming some Scala, Erlang, Go.
+
+Sometimes there are restrictions about picking language. If I was forced to use a language because of restrictions I would then find the best tools for helping me as concurrent programming is all about communication (between Threads, Actors,... or what else is that language design).
+
+Here **I picked Go** as it is a powerful concurrent language. But I didn't choose is over Scala. **I picked Go to play with this language a bit more** and finish the task in less than a day.
+
+I would say for a production system based on my understanding **I would pick Scala** in general. Go for some usages. Erlang in some rare cases.
+
+Beside language we need to know this is a concurrency problem (please note it is different than parallelism) and we need to use/apply the related best practices there.
+
 
 I had some assumptions about the design.
 - I just used my understading of problem to avoid lenghty discussions. For a real product I dont look for a solution until I understand the problem properly. It is vital to understand all aspects of a problem to be able to offer a good solution. There are different solutions in IT world for a reason. There is no sivler bullet.
