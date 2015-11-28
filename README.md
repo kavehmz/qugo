@@ -64,13 +64,16 @@ This will use Go Routines (very light weight thread) and Channels (Go concept fo
 -woker: number of concurrent workers which each analysers will have
 - id: Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.
 
+> **Note:** AnalysePool will send all events of one OrderID to the same AnalyserWorker.
+> **Note:** In Go number of workers can be specified by a simple concepts named Channel Buffering.
+
 QuGo can handle multiple redis instance and in each instance can create multiple queue. This is to make sure Analysers can scale as we like. I assumed Analysers especially are the main bottleneck in scalability.
 
 The whole design can be epxresses in one graph:
 
 [![Diagram](https://raw.githubusercontent.com/kavehmz/static/master/queue/diagram.png)]()
 
-
+I can still go on for a while about the design and the code but I think for those familiar with the concept this documents reveals enough about the ideas and process behind the choices.
 
 ### References:
 [1] http://queues.io/
