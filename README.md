@@ -1,9 +1,36 @@
+
 # qugo
+QuGo is a queue manager in Go using redis.
 [![Build Status](https://travis-ci.org/kavehmz/qugo.svg)](https://travis-ci.org/kavehmz/qugo)
 
-This is a queue manager using redis.
+---
 
-The main buzwords around its design are concurrency, paritioning and fault-detection [1]
+## Approach
+
+Focus of this design is mainly horisontal scalability via concurrency, paritioning and fault-detection[1].
+
+My usual approach would be
+- First **understanding** the field of business and its characteristics very well. How a business works matters in how we can scale it **cost effectively**.
+- I would (work with my colleagues/search for/benchmark/study) several acceptable Paas/Saas solutions. Some scalability issues are already solved in other platforms.
+- If not able to use a ready solution for any reason like regulations, I would (work with my colleagues/search for/benchmark/study) for libre solutions.
+
+> **Note**: I didn't want to spend more than a day on this task or spend money. So I assumed a lot and fast forward many decisions that I would not do in a real product.
+
+
+> **Note**: One Main assumption I make that affected code complexity was that **All Orders With The Same OrderID must be managed with a single worker and not distributed** across different workers. This I thought makes sense in a warehouse and QuGo library is able to handle it.
+
+## Benchmarks and Picking "The Right Tools!"
+
+This is a Queuing problems. We need a FIFO with a guarantee of atomic POPs.
+
+### Queue
+Redis is a DB with that ability. I also did benchmarks. Redis was able to handle around a 1M raw insert/reads per minute. But not depending on a limited benchmark **I added two reference benchmark to unit tests that can historically how relative performance of code**. As a reference you can see the results for AddTask and RemoveTask operations in https://travis-ci.org/kavehmz/qugo
+
+![benchmarket](https://raw.githubusercontent.com/kavehmz/static/master/queue/benchmarket01.png)
+
+
+> Note: As you see AddTask is a much lighter operation than RemoveTask. Because to make sure **We don't lose trace of running jobs in case of any crash** RemoveTask will add a log of running tasks in Redis. In case of crash that can be used to find those affected tasks.
+
 
 I had some assumptions about the design.
 - I just used my understading of problem to avoid lenghty discussions. For a real product I dont look for a solution until I understand the problem properly. It is vital to understand all aspects of a problem to be able to offer a good solution. There are different solutions in IT world for a reason. There is no sivler bullet.
