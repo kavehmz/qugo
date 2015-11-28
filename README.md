@@ -62,8 +62,11 @@ In problem there is a mentions of **The Device**. I assumed that is a single poi
 **AnalysePool**
 This will use Go Routines (very light weight thread) and Channels (Go concept for communicating between Go Routines to spin up add many Analysers we want. When we run the app to as a Analyser we set two params
 
--woker: number of concurrent workers which each analysers will have
-- id: Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.
+- -woker: number of concurrent workers which each analysers will have
+- -id: Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.
+
+**Analyse Fucntions:** are defines in the app locally and passed to AnalysePool. This way AnalysePool and queue library remains **a general queue management library** and all the details of how warehouse analyses an even will be implmeneted separately. In languages like **Scala** or **Go** that functions are **first-class citizens** implementing this concept is easier.
+
 
 > **Note:** AnalysePool will send all events of one OrderID to the same AnalyserWorker.
 
