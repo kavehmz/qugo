@@ -79,12 +79,14 @@ I can still go on for a while about the design and the code but I think for thos
 ### Very Important parts
 This is just a practice to show my mind set. Otherwise this is not a complete solution.
 In a complete solutions I would also work on,
-- dev environment, I did a fast sample :https://github.com/kavehmz/queued
-- metrics, monitoring and alerts (datadog, newrelic, pagerduty,..)
-- automated setup and automated scaling (chef, amazon opsWorks,..)
-- auto-scaling prediction and warm-up. For example in AWS both ELB and newly created volumes from a snapshot need warm-up for high volume loads.
-- I might work on a concurrent event capturing devices and drop the assumption of one device that I interpreted from the word "THE" in description. This is a very small and easy task anyway.
-- I might use Scala instead of Go
+- dev environment, I did a fast sample using **Vagrant** :https://github.com/kavehmz/queued
+- metrics, monitoring and alerts (**datadog, newrelic, pagerduty**,..)
+- automated setup and automated scaling (**Chef, amazon opsWorks**,..)
+- I would use service discovery tools and services in my implementation (**Consul, ZooKeepr, etcd**,..)
+- auto-scaling prediction and warm-up has predictable instant high-loads. For example in AWS both ELB and newly created volumes from a snapshot need **warm-up** for high volume loads. Alos **scale up-down** for costs and handling load.
+- I might work on a concurrent event capturing devices and drop the assumption of one device that I interpreted from the word **The** in description. This is a very small and easy task anyway.
+- I will Scala instead of Go
+.....
 
 ### References:
 [1] http://queues.io/
