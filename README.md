@@ -11,7 +11,7 @@ Focus of this design is mainly horisontal scalability via concurrency, paritioni
 
 My usual approach would be
 - First **understanding** the field of business and its characteristics very well. How a business works matters in how we can scale it **cost effectively**.
-- I would (work with my colleagues/search for/benchmark/study) several acceptable Paas/Saas solutions. Some scalability issues are already solved in other platforms.
+- I would (work with my colleagues/search for/benchmark/study) several acceptable Paas/Saas solutions. Some scalability issues are already solved in other platforms. [1]
 - If not able to use a ready solution for any reason like regulations, I would (work with my colleagues/search for/benchmark/study) for libre solutions.
 
 > **Note**: I didn't want to spend more than a day on this task or spend money. So I assumed a lot and fast forward many decisions that I would not do in a real product.
@@ -43,13 +43,34 @@ I would say for a production system based on my understanding **I would pick Sca
 
 Beside language we need to know this is a concurrency problem (please note it is different than parallelism) and we need to use/apply the related best practices there.
 
+### Design
+I designed a horizontally scalable solution. 
+For scalability we can separately add  more Redis instances and more Analysers (with as many workers as that analyser instance supports).
 
-I had some assumptions about the design.
-- I just used my understading of problem to avoid lenghty discussions. For a real product I dont look for a solution until I understand the problem properly. It is vital to understand all aspects of a problem to be able to offer a good solution. There are different solutions in IT world for a reason. There is no sivler bullet.
-- I wanted to finish the project in less than a day (So I did not do thorough search of all available options and languages). For a real solutions I will search, benchmark and talk to other team members.
-- I didnt wanted to do it using local, easiliy setupable tools. Something that I wont do for real products. 
-- I make the solution more Complex by assigning all events of the same Order to one Analyser as I found it more realistic. Without that solution would be far simpler.
+Partitioning factor to identify where each event must save is the OrderID.
+RedisParition => OrderId % redisParitions
+Queue => (OrderID/redisParitions) % queuePartitions
+
+For example if we have redisParitions=2 and queuePartitions 3 we will save OrderID = 14 in 
+Redis number 0
+Queue number 1
+
+**AddTask**
+In problem there is a mentions of **The Device**. I assumed that is a single point and AddTask is normally a much faster operation than analyser. So I left it like that.
+
+**AnalysePool**
+This will use Go Routines (very light weight thread) and Channels (Go concept for communicating between Go Routines to spin up add many Analysers we want. When we run the app to as a Analyser we set two params
+
+-woker: number of concurrent workers which each analysers will have
+- id: Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.
+
+QuGo can handle multiple redis instance and in each instance can create multiple queue. This is to make sure Analysers can scale as we like. I assumed Analysers especially are the main bottleneck in scalability.
 
 The whole design can be epxresses in one graph:
 
 [![Diagram](https://raw.githubusercontent.com/kavehmz/static/master/queue/diagram.png)]()
+
+
+
+### References:
+[1] http://queues.io/
