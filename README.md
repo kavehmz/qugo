@@ -8,17 +8,17 @@ QuGo is a queue manager in Go using redis.
 
 ## Approach
 
-Focus of this design is mainly horisontal scalability via concurrency, paritioning and fault-detection[1].
+Focus of this design is mainly horizontal scalability via concurrency, partitioning and fault-detection[1].
 
 My usual approach would be
 - First **understanding** the field of business and its characteristics very well. How a business works matters in how we can scale it **cost effectively**.
 - I would (work with my colleagues/search for/benchmark/study) several acceptable Paas/Saas solutions. Some scalability issues are already solved in other platforms. [1]
 - If not able to use a ready solution for any reason like regulations, I would (work with my colleagues/search for/benchmark/study) for libre solutions.
 
-> **Note**: I didn't want to spend more than a day on this task or spend money. So I assumed a lot and fast forwarded many decisions that I would not do in a real product.
+But I didn't want to spend more than a day on this task or spend money. So I assumed a lot and fast forwarded many decisions that I would not do in a real product.
 
 
-> **Note**: One Main assumption I make that affected code complexity was that **All Orders With The Same OrderID must be managed with a single worker and not distributed across different workers**. This I thought makes sense in a warehouse and QuGo library is able to handle it.
+> **Note**: One assumption I make that affected code complexity was that **All Orders With The Same OrderID must be managed with a single worker and not distributed across different workers**. This I thought makes sense in a warehouse and QuGo library is able to handle it.
 
 ## Benchmarks and Picking "The Right Tools!"
 
@@ -42,10 +42,10 @@ Here **I picked Go** as it is a powerful concurrent language. But I didn't choos
 
 I would say for a production system based on my understanding **I would pick Scala** in general. Go for some usages. Erlang in some rare cases.
 
-Beside language we need to know this is a concurrency problem (please note it is different than parallelism) and we need to use/apply the related best practices there.
+Regardless of language we chose, this is a concurrency problem (different than parallelism) and we need to use/apply the related best practices there.
 
 ### Design
-I designed a horizontally scalable solution. 
+I tried to design a horizontally scalable solution. 
 For scalability we can separately add  more Redis instances and more Analysers (with as many workers as that analyser instance supports).
 
 Partitioning factor to identify where each event must save is the OrderID.
@@ -91,7 +91,7 @@ In a complete solutions I would also work on,
 - I would use service discovery tools and services in my implementation (**Consul, ZooKeepr, etcd**,..)
 - auto-scaling prediction and warm-up has predictable instant high-loads. For example in AWS both ELB and newly created volumes from a snapshot need **warm-up** for high volume loads. Alos **scale up-down** for costs and handling load.
 - I might work on a concurrent event capturing devices and drop the assumption of one device that I interpreted from the word **The** in description. This is a very small and easy task anyway.
-- I will Scala instead of Go
+- I would use Scala instead of Go
 - I would **separate the app from the library repo**. I think that is a better practice.
 .....
 
