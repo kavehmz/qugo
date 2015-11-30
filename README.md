@@ -8,7 +8,7 @@ QuGo is a queue manager in Go using redis.
 
 ## Approach
 
-Focus of this design is mainly horizontal scalability via concurrency, partitioning and fault-detection[1].
+Focus of this design is mainly horizontal scalability via concurrency, partitioning and fault-detection.
 
 My usual approach would be
 - First **understanding** the field of business and its characteristics very well. How a business works matters in how we can scale it **cost effectively**.
@@ -96,4 +96,4 @@ In a complete solutions I would also work on,
 .....
 
 ### References:
-[1] http://queues.io/
+[1]http://queues.io/
