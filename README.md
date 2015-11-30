@@ -2,7 +2,7 @@
 # qugo
 QuGo is a queue manager in Go using redis.
 
-[![Build Status](https://travis-ci.org/kavehmz/qugo.svg)](https://travis-ci.org/kavehmz/qugo)
+This is based on my Queue library https://github.com/kavehmz/queue
 
 ---
 
@@ -92,7 +92,7 @@ In a complete solutions I would also work on,
 - auto-scaling prediction and warm-up has predictable instant high-loads. For example in AWS both ELB and newly created volumes from a snapshot need **warm-up** for high volume loads. Alos **scale up-down** for costs and handling load.
 - I might work on a concurrent event capturing devices and drop the assumption of one device that I interpreted from the word **The** in description. This is a very small and easy task anyway.
 - I would use Scala instead of Go
-- I would **separate the app from the library repo**. I think that is a better practice.
+- In Analysepool I would use Redis event instead of sleep to wait to queue to refill
 .....
 
 ### References:
