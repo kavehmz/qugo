@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	"./src/queue"
+	"github.com/kavehmz/queue"
 )
 
 // Event defines warehouse event
@@ -82,6 +82,9 @@ func main() {
 		generateRandomEvents()
 	} else {
 		analyse := analyse
-		queue.AnalysePool(*id, *poolSize, false, analyse)
+		exitOnEmpty := func() bool {
+			return true
+		}
+		queue.AnalysePool(*id, *workers, exitOnEmpty, analyse)
 	}
 }
