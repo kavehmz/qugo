@@ -2,7 +2,7 @@
 # qugo
 QuGo is a queue manager in Go using redis.
 
-This is based on my Queue library https://github.com/kavehmz/queue
+This app uses on my Queue library https://github.com/kavehmz/queue
 
 ---
 
