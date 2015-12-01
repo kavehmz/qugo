@@ -74,7 +74,7 @@ func analyse(id int, msg_channel chan string, success chan bool, next chan bool)
 func main() {
 	//Initializing the queu
 	queue.Partitions([]string{"redis://redisqueue.kaveh.me:6379"})
-	queue.QueuesInPartision(1)
+	queue.QueuesInPartition(1)
 
 	// Application parameters the Go way
 	mode := flag.String("mode", "analyser", "Specfies the mode for this application [device|analyser].")
@@ -90,6 +90,6 @@ func main() {
 		exitOnEmpty := func() bool {
 			return true
 		}
-		queue.AnalysePool(*id, *workers, exitOnEmpty, analyse)
+		queue.AnalysePool(*id, *workers, 4, exitOnEmpty, analyse)
 	}
 }
