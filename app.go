@@ -22,18 +22,18 @@ type Event struct {
 	PicklistID int
 }
 
-func generateRandomEvents(n int) {
+func generateRandomEvents(q queue.Queue, n int) {
 	for id := 1; id <= n; id++ {
 		jsonVal, _ := json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Start", OrderID: id, ItemID: 0, Quantity: 0, Container: 0, PicklistID: id})
-		queue.AddTask(id, string(jsonVal))
+		q.AddTask(id, string(jsonVal))
 		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Pick", OrderID: id, ItemID: 1100, Quantity: 1, Container: 5, PicklistID: id})
-		queue.AddTask(id, string(jsonVal))
+		q.AddTask(id, string(jsonVal))
 		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Skip", OrderID: id, ItemID: 1101, Quantity: 1, Container: 5, PicklistID: id})
-		queue.AddTask(id, string(jsonVal))
+		q.AddTask(id, string(jsonVal))
 		jsonVal, _ = json.Marshal(Event{Username: "system", Timestamp: time.Now().Unix(), Event: "Stop", OrderID: id, ItemID: 0, Quantity: 0, Container: 0, PicklistID: id})
 		r := rand.New(rand.NewSource(time.Now().UnixNano()))
 		if r.Int()%2 != 4 {
-			queue.AddTask(id, string(jsonVal))
+			q.AddTask(id, string(jsonVal))
 		}
 	}
 
@@ -71,25 +71,31 @@ func analyse(id int, msg_channel chan string, success chan bool, next chan bool)
 	}
 }
 
-func main() {
-	//Initializing the queu
-	queue.Partitions([]string{"redis://redisqueue.kaveh.me:6379"})
-	queue.QueuesInPartition(1)
+var mode *string
+var id, insert, workers *int
 
+func init() {
 	// Application parameters the Go way
-	mode := flag.String("mode", "analyser", "Specfies the mode for this application [device|analyser].")
-	insert := flag.Int("insert", 10, "Number of inserts into queue. Only useful if mode is device.")
-	id := flag.Int("id", 1, "Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.")
-	workers := flag.Int("workers", 4, "Specfies number of concurrent workers which each analysers will have.")
+	mode = flag.String("mode", "", "Specfies the mode for this application [device|analyser].")
+	insert = flag.Int("insert", 10, "Number of inserts into queue. Only useful if mode is device.")
+	id = flag.Int("id", 1, "Specfies the ID of analyser. This will set which redis and which queue this analyser will handle.")
+	workers = flag.Int("workers", 0, "Specfies number of concurrent workers which each analysers will have.")
 	flag.Parse()
+}
 
+func main() {
+	var q queue.Queue
+	q.Urls([]string{"redis://redisqueue.kaveh.me:6379"})
 	if *mode == "device" {
-		generateRandomEvents(*insert)
+		generateRandomEvents(q, *insert)
 	} else {
-		analyse := analyse
-		exitOnEmpty := func() bool {
-			return true
+		if *workers != 0 {
+			q.AnalyzerBuff = *workers
 		}
-		queue.AnalysePool(*id, *workers, 4, exitOnEmpty, analyse)
+		wsStress := analyse
+		exitOnEmpty := func() bool {
+			return false
+		}
+		q.AnalysePool(*id, exitOnEmpty, wsStress)
 	}
 }
